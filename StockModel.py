@@ -5,10 +5,10 @@ This project is open to anyone
 **** Dependencies
 '''
 
-class SPY:
+class StockDev:
 
-    def __init__(self):
-
+    def __init__(self, ticker):
+        self.__ticker = ticker
         self.__m = 0
         self.__b = 0
         self.__std = 0
@@ -62,7 +62,11 @@ class SPY:
     def __logy_outputs(self, start, end):
         from iexfinance.stocks import get_historical_data
         import numpy as np
-        data = get_historical_data("SPY", start, end)
+        try:
+            data = get_historical_data(self.__ticker, start, end)
+        except:
+            print("{} is not availible or does not exist".format(self.__ticker))
+            exit(2)
         self.__dates = data.keys()
         y = []
         for i in data.keys():
@@ -78,15 +82,17 @@ class SPY:
         plt.figure(1)
         plt.plot(self.__logy, 'k')
         line =  [i * self.__m + self.__b for i in range(self.__numDays)]
-        plt.plot(line, 'r')
+        plt.plot(line, 'b')
         plt.plot([i - self.__std for i in line], 'g')
         plt.plot([i + self.__std for i in line], 'g')
+        plt.plot([i - self.__std*2 for i in line], 'r')
+        plt.plot([i + self.__std*2 for i in line], 'r')
         plt.xticks(np.arange(0, self.__numDays, 250), [list(self.__dates)[i] for i in range(0, self.__numDays, 250)])
         plt.show()
 
 
 if __name__ == '__main__':
-    spx = SPY()
+    spx = StockDev("SPY")
     spx.say_state()
     spx.todays_deviation()
     spx.plot_with_dev()
